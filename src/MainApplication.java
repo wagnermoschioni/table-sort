@@ -1,3 +1,8 @@
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
@@ -10,8 +15,9 @@ public class MainApplication {
 	
 	
 	//Metodo Main
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		
+		Connection con = null;
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		TableDesign design = new TableDesign();
@@ -41,17 +47,44 @@ public class MainApplication {
 		            {"Carol", "35", "Diretora Comercial"},
 		            {"David", "28", "Desenvolvedor"},
 		        };
+		 
+		  Conexao conn = new Conexao();
+		  con = conn.getConexao();
 		  
-		  for (String[] linha : dados) {
-	            TableItem item = new TableItem(tabela, SWT.NONE);
-	            item.setText(linha);
-	        }
+		  Statement st = con.createStatement();
+		  st.execute("CREATE TABLE IF NOT EXISTS pessoas (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255), idade INT, cargo VARCHAR(255))");
+		  
+		  st.executeUpdate("INSERT INTO pessoas (nome, idade, cargo) VALUES ('Carlos', 30, 'Assistente')");
+		  st.executeUpdate("INSERT INTO pessoas (nome, idade, cargo) VALUES ('Atomario', 29, 'Assistente')");
+		  st.executeUpdate("INSERT INTO pessoas (nome, idade, cargo) VALUES ('Jonas', 55, 'Assistente')");
+		  
+		  ResultSet resultSet = st.executeQuery("SELECT * FROM pessoas");
+		  
+		  while (resultSet.next()) {
+              TableItem item = new TableItem(tabela, SWT.NONE);
+              item.setText(new String[]{
+                      String.valueOf(resultSet.getInt("id")),
+                      resultSet.getString("nome"),
+                     String.valueOf(resultSet.getInt("idade")),
+                     resultSet.getString("cargo")
+			
+              });
+          }
+		  
+//		  for (String[] linha : dados) {
+//	            TableItem item = new TableItem(tabela, SWT.NONE);
+//	            item.setText(linha);
+//	        }
+		  
+		  resultSet.close();
+          st.close();
+          con.close();
 		  
 		  
 		  //chamando metodo aplicarFuncs 	
 		  design.aplicarFuncs(tabela);		  
 				  
-		  shell.setSize(400, 200);
+		  shell.setSize(500, 250);
 		  shell.open();
 		  
 		  while(!shell.isDisposed()) {
