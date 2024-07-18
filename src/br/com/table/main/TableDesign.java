@@ -1,3 +1,4 @@
+package br.com.table.main;
 import java.util.Arrays;
 import java.util.Comparator;
 
